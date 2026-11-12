@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>ECORA Website</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--bg:#eef3f1;--fg:#14201c;--card:#fff;--ac:#0f9d68;--mu:#5b6a66;--bd:#cfd9d5;--rd:#c63a3a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11181a;--fg:#e8f0ed;--card:#1b2427;--mu:#9bb0a9;--bd:#2c3a3e}}
+:root[data-theme="dark"]{--bg:#11181a;--fg:#e8f0ed;--card:#1b2427;--mu:#9bb0a9;--bd:#2c3a3e}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,sans-serif}
+.w{max-width:760px;margin:0 auto;padding:14px 16px 40px}h1{margin:0;font-size:24px;color:var(--ac)}h2{font-size:16px;margin:16px 0 6px}
+.m{color:var(--mu);font-size:13px;margin:2px 0}.c{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin:10px 0}
+.tabs{display:flex;gap:6px;margin:10px 0}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button{border:1px solid var(--ac);background:var(--card);color:var(--fg);padding:9px 14px;border-radius:8px;font-size:14px;cursor:pointer}
+button.on,button.p{background:var(--ac);color:#fff}button.r{background:var(--rd);border-color:var(--rd)}button:disabled{opacity:.35;cursor:not-allowed}
+label{display:block;margin:8px 0;font-size:13px;color:var(--mu)}input{display:block;width:100%;margin-top:3px;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--fg);font-size:15px}
+.big{font-size:44px;font-weight:700;line-height:1.1}.bar{height:8px;background:var(--bd);border-radius:6px;margin:8px 0;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+.n{background:var(--card);border-left:4px solid var(--rd);padding:10px 12px;border-radius:8px;margin:10px 0}
+.tk{border:2px dashed var(--ac)}.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.g .c{margin:0}.g .big{font-size:26px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+html{-webkit-text-size-adjust:100%}button{min-height:48px;border-radius:12px;font-size:16px;font-weight:600;touch-action:manipulation}.row button{flex:1 1 140px}input{font-size:16px;padding:13px;border-radius:12px}
+header{background:linear-gradient(135deg,#0f9d68,#0a6b47);color:#fff;padding:16px 16px 30px}header h1{color:#fff;font-size:26px}header span{font-size:13px;opacity:.9}
+header{position:relative}.tg{position:absolute;top:14px;right:14px;min-height:40px;padding:6px 14px;border:1px solid #ffffff90;background:#ffffff25;color:#fff;border-radius:20px;font-size:14px}
+.w{margin:-16px auto 0;padding:0 14px 96px}.c{border-radius:18px;box-shadow:0 2px 10px rgba(0,0,0,.07)}.big{font-size:56px}.tabs button{flex:1}
+.nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;background:var(--card);border-top:1px solid var(--bd);padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}.nav button{flex:1;border:0;background:none;color:var(--mu)}.nav button.on{background:var(--ac);color:#fff}
+.hero{background:linear-gradient(135deg,#0f9d68,#0a6b47);color:#fff;border:0}.hero .m{color:#e3f7ee}.hero .bar{background:#ffffff45}.hero .bar i{background:#fff}.hero button{background:#fff;color:#0a6b47;border-color:#fff}.hero button.r{background:#c63a3a;color:#fff;border-color:#c63a3a}.hero button:last-child{background:transparent;color:#fff;border-color:#ffffff90}
+.dp{text-align:center}.ring{width:150px;height:150px;border-radius:50%;margin:10px auto;display:grid;place-items:center;background:conic-gradient(var(--ac) var(--p),var(--bd) 0)}.ring span{width:120px;height:120px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:48px;font-weight:700}
+</style></head><body><header><h1>&#9851; ECORA</h1><span>Drop it, sort it, earn it</span><button id="tg" class="tg"></button></header><div class="w"><div id="app"></div></div>
+<nav class="nav"><button data-a="v" data-v="student">Student</button><button data-a="v" data-v="admin">Administrator</button></nav>
+<script>
+let D,mem=null,view='student',me=null,adm=false,mode='login',msg='',tok=null,S={on:false,left:0};
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function H(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('ecora:'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return 'p:'+s}}
+function ld(){try{return JSON.parse(localStorage.getItem('ecora'))}catch(e){return mem}}
+function sv(){try{localStorage.setItem('ecora',JSON.stringify(D))}catch(e){mem=D}}
+const U=()=>D.users.find(x=>x.id===me),KN={plastic:'Plastic bottle',can:'Tin can',redeem:'Redeemed token'};
+function auth(){return `<div class="c"><div class="tabs"><button data-a="m" data-m="login" class="${mode==='login'?'on':''}">Log in</button><button data-a="m" data-m="reg" class="${mode==='reg'?'on':''}">Register</button></div>
+<label>Complete name<input id="nm" autocomplete="name"></label><label>ID number<input id="id" inputmode="numeric"></label><label>Password<input id="pw" type="password" autocomplete="current-password"></label>
+<button class="p" data-a="${mode==='login'?'login':'reg'}">${mode==='login'?'Log in':'Create account'}</button><p class="m">Scan the QR on the ECORA bin to open this page.</p></div>`}
+function hist(u){const r=D.log.filter(x=>x.id===u.id).slice(-8).reverse();return r.length?`<h2>Recent activity</h2><div class="c tw"><table>${r.map(x=>`<tr><td>${new Date(x.t).toLocaleString()}</td><td>${KN[x.k]}</td><td>${x.p>0?'+':''}${x.p}</td></tr>`).join('')}</table></div>`:''}
+function dash(){const u=U(),c=D.cfg,ok=u.points>=c.cost;
+return `<div class="c hero"><div class="m">Hello, ${esc(u.name)} (${esc(u.id)})</div><div class="big">${u.points}</div><div class="m">points</div>
+<div class="bar"><i style="width:${Math.min(100,u.points/c.cost*100)}%"></i></div><div class="m">${ok?'Redeem is available.':(c.cost-u.points)+' more points to unlock Redeem.'}</div>
+<div class="row"><button class="p" data-a="dep">Deposit</button><button class="p r" data-a="red" ${ok?'':'disabled'}>Redeem</button><button data-a="out">Log out</button></div></div>`
++(S.on?`<div class="c dp"><div class="m">Deposit mode: drop your items in the bin.</div><div class="ring" style="--p:${S.left/c.secs*100}%"><span id="cd">${S.left}</span></div><div class="m">seconds left. The timer goes back to ${c.secs} each time an item is detected.</div>
+<div class="row"><button data-a="it" data-t="plastic">Demo: plastic bottle (+${c.plastic})</button><button data-a="it" data-t="can">Demo: tin can (+${c.can})</button></div>
+<div class="row"><button class="p" data-a="done">Done</button></div><div class="m">This session: ${S.pl} bottle(s), ${S.cn} can(s), +${S.pts} points</div><p class="m">On the real machine the sensors send these. The demo buttons stand in for them.</p></div>`:'')
++(tok?`<div class="c tk"><b>Token</b><div class="big">${tok}</div><div class="m">₱${c.value} coupon. Take the paper token from the machine slot.</div></div>`:'')+hist(u)}
+function loginA(){return `<div class="c"><b>Administrator log in</b><label>Username<input id="au" value="admin"></label><label>Password<input id="ap" type="password"></label><button class="p" data-a="al">Log in</button><p class="m">Demo login: admin / admin123. Change it under settings.</p></div>`}
+function adminV(){const c=D.cfg,pts=D.users.reduce((a,x)=>a+x.points,0),L=D.log.slice(-15).reverse();
+return `<div class="row"><button data-a="ao">Log out</button></div><h2>Overview</h2><div class="g">
+<div class="c"><div class="m">Students</div><div class="big">${D.users.length}</div></div><div class="c"><div class="m">Points held</div><div class="big">${pts}</div></div><div class="c"><div class="m">Tokens redeemed</div><div class="big">${D.tokens}</div></div>
+<div class="c"><div class="m">Plastic in bin</div><div class="big">${D.bin.plastic}</div></div><div class="c"><div class="m">Tin cans in bin</div><div class="big">${D.bin.can}</div></div></div>
+<div class="row"><button data-a="empty">Mark bin as emptied</button></div>
+<h2>Settings</h2><div class="c"><label>Points per plastic bottle<input id="c1" type="number" min="1" value="${c.plastic}"></label><label>Points per tin can<input id="c2" type="number" min="1" value="${c.can}"></label>
+<label>Points needed for one token<input id="c3" type="number" min="1" value="${c.cost}"></label><label>Token value (₱)<input id="c4" type="number" min="1" value="${c.value}"></label>
+<label>Deposit timer (seconds)<input id="c5" type="number" min="5" value="${c.secs}"></label><label>New admin password (optional)<input id="c6" type="password"></label><button class="p" data-a="as">Save settings</button></div>
+<h2>Students</h2><div class="c tw"><table><tr><th>Name</th><th>ID</th><th>Points</th><th></th></tr>${D.users.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.id)}</td><td>${x.points}</td><td><button data-a="del" data-id="${esc(x.id)}">Remove</button></td></tr>`).join('')||'<tr><td>No students yet</td></tr>'}</table></div>
+<h2>Latest transactions</h2><div class="c tw"><table><tr><th>Time</th><th>Student</th><th>Type</th><th>Points</th></tr>${L.map(x=>`<tr><td>${new Date(x.t).toLocaleString()}</td><td>${esc(x.n)}</td><td>${KN[x.k]}</td><td>${x.p>0?'+':''}${x.p}</td></tr>`).join('')||'<tr><td>None yet</td></tr>'}</table></div>`}
+function render(){document.querySelectorAll('.nav>button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
+$('#app').innerHTML=(msg?`<div class="n">${esc(msg)}</div>`:'')+(view==='admin'?(adm?adminV():loginA()):(me?dash():auth()))}
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled||!D)return;const a=b.dataset.a;msg='';const c=D.cfg;
+if(a==='v')view=b.dataset.v;
+else if(a==='m')mode=b.dataset.m;
+else if(a==='reg'||a==='login'){const nm=$('#nm').value.trim(),id=$('#id').value.trim(),pw=$('#pw').value,u=D.users.find(x=>x.id===id);
+if(!nm||!id||pw.length<6)msg='Fill in all fields. The password needs at least 6 characters.';
+else if(a==='reg'){if(u)msg='That ID number is already registered.';else{D.users.push({name:nm,id,hash:await H(id+pw),points:0});me=id;sv()}}
+else if(u&&u.name.toLowerCase()===nm.toLowerCase()&&u.hash===await H(id+pw))me=id;else msg='The name, ID number or password is not correct.'}
+else if(a==='dep'){S={on:true,left:c.secs,pl:0,cn:0,pts:0};tok=null}
+else if(a==='it'&&S.on){const t=b.dataset.t,u=U();u.points+=c[t];D.bin[t]++;D.log.push({t:Date.now(),id:me,n:u.name,k:t,p:c[t]});S.left=c.secs;if(t==='plastic')S.pl++;else S.cn++;S.pts+=c[t];sv()}
+else if(a==='red'){const u=U();if(u.points>=c.cost){u.points-=c.cost;D.tokens++;tok='ECORA-'+Math.random().toString(36).slice(2,8).toUpperCase();D.log.push({t:Date.now(),id:me,n:u.name,k:'redeem',p:-c.cost});sv()}}
+else if(a==='done'){if(S.on){msg='Deposit finished: '+S.pl+' plastic bottle(s) and '+S.cn+' tin can(s), +'+S.pts+' points added to your account.';S.on=false}}
+else if(a==='out'){me=null;S.on=false;tok=null}
+else if(a==='al'){if($('#au').value==='admin'&&await H($('#ap').value)===D.admin)adm=true;else msg='Wrong username or password.'}
+else if(a==='ao')adm=false;
+else if(a==='as'){const v=[1,2,3,4,5].map(i=>parseInt($('#c'+i).value));if(v.some(x=>!(x>0)))msg='Enter numbers greater than zero.';else{c.plastic=v[0];c.can=v[1];c.cost=v[2];c.value=v[3];c.secs=Math.max(5,v[4]);const p=$('#c6').value;if(p){if(p.length<6)msg='The new password needs at least 6 characters.';else D.admin=await H(p)}if(!msg){msg='Settings saved.'}sv()}}
+else if(a==='empty'){D.bin={plastic:0,can:0};sv()}
+else if(a==='del'){D.users=D.users.filter(x=>x.id!==b.dataset.id);sv()}
+render()});
+const dm=()=>matchMedia('(prefers-color-scheme:dark)').matches,cur=()=>document.documentElement.getAttribute('data-theme')||(dm()?'dark':'light');
+function lab(){$('#tg').textContent=cur()==='dark'?'☀ Light':'☾ Dark'}
+try{const t=localStorage.getItem('ecora-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}
+$('#tg').addEventListener('click',()=>{const t=cur()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('ecora-theme',t)}catch(e){}lab()});lab();
+setInterval(()=>{if(!S.on)return;S.left--;if(S.left<=0){S.on=false;me=null;msg='Time is up. You were logged out. This session added '+S.pts+' points, now saved in your account.';render()}else{const el=$('#cd');if(el){el.textContent=S.left;el.parentElement.style.setProperty('--p',S.left/D.cfg.secs*100+'%')}}},1000);
+(async()=>{D=ld()||{users:[],log:[],cfg:{plastic:2,can:1,cost:100,value:50,secs:30},admin:await H('admin123'),bin:{plastic:0,can:0},tokens:0};render()})();
+</script></body></html>
